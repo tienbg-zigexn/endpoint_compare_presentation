@@ -230,6 +230,145 @@ docker compose up
   for the whole system
 ]
 
+// ── Technical ────────────────────────────────────────────────────────────────
+
+#slide[#text(size: 1.1em)[For Developers]]
+
+#slide[
+  Everything lives \
+  in a #hl[manifest]
+]
+
+#code-slide[
+```yaml
+defaults:          # applied to every check
+  body_compare: json
+  headers:
+    Accept: application/json
+
+checks:
+  - get: /api/products
+  - post: /api/orders
+  - delete: /api/things/1
+```
+]
+
+#slide[
+  HTTP shortcuts \
+  #dim[`get:` `post:` `put:` `patch:` `delete:` `head:`]
+]
+
+#code-slide[
+```yaml
+- get: /path                # shorthand
+- method: OPTIONS           # any verb
+  path: /path
+
+- post: /api/orders
+  body:                     # sent as JSON
+    name: test
+  query:
+    page: 1
+```
+]
+
+#slide[`body_compare`]
+
+#slide[
+  `none` \
+  #dim[status code only]
+]
+
+#slide[
+  `json` \
+  #dim[same keys + types] \
+  #dim[values ignored]
+]
+
+#slide[
+  `json_exact` \
+  #dim[deep value match]
+]
+
+#slide[
+  `html_structure` \
+  #dim[DOM tree comparison] \
+  #hl[best for Rails upgrades]
+]
+
+#slide[Volatile fields?]
+
+#code-slide[
+```yaml
+defaults:
+  json_ignore_paths:
+    - meta.request_id
+    - data.updated_at
+    - user.last_seen_at
+```
+]
+
+#slide[Per-side auth]
+
+#code-slide[
+```yaml
+# in the UI form  (or env vars for Docker)
+baseline_cookies:  session=abc123
+candidate_cookies: session=xyz789
+
+baseline_extra_headers:
+  {"Authorization": "Bearer old-token"}
+candidate_extra_headers:
+  {"Authorization": "Bearer new-token"}
+```
+]
+
+#slide[Presets]
+
+#code-slide[
+```
+presets/
+  smoke.yml
+  hikakaku_cms_public_json_api.yml
+  hikakaku_cms_user_html_routes.yml
+  ...
+```
+#v(0.5em)
+#align(center)[pick in UI → loads manifest automatically]
+]
+
+#slide[Create your own preset]
+
+#code-slide[
+```yaml
+# presets/my_feature.yml
+defaults:
+  body_compare: json
+
+checks:
+  - get: /api/my-feature
+  - post: /api/my-feature
+    body: { name: test }
+```
+]
+
+#slide[
+  Drop file in `presets/` \
+  Appears in UI #hl[automatically]
+]
+
+#slide[Or call the API directly]
+
+#code-slide[
+```bash
+curl -s -X POST http://localhost:9292/run \
+  -F baseline=https://old.example.com \
+  -F candidate=https://new.example.com \
+  -F manifest="$(cat my.yml)" \
+  | jq '.results[] | select(.ok == false)'
+```
+]
+
 // ── End ──────────────────────────────────────────────────────────────────────
 
 #slide[#text(size: 1.4em)[Questions?]]
