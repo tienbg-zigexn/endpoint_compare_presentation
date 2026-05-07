@@ -114,7 +114,7 @@ checks:
 
 // ── Bug story ────────────────────────────────────────────────────────────────
 
-#slide[Now the fun part]
+#slide[#text(size: 2em)[🐛]]
 
 #slide[I found a bug \
 #dim[while building this tool]]
@@ -174,7 +174,7 @@ end
 
 #slide[
   Thread A writes #hl[`/lp`] \
-  Thread B writes `/ lp/pc` \
+  Thread B writes `/lp/pc` \
   Thread A reads… #hl[`/lp/pc`]
 ]
 
